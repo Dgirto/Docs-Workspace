@@ -1,0 +1,55 @@
+{
+  "id": "docs_workspace",
+  "name": "Google Docs (Google Workspace — cuenta de servicio)",
+  "name_en": "Google Docs (Google Workspace — service account)",
+  "version": "1.0.0",
+  "description": "Lectura, creación y edición de documentos accesibles por usuarios de un dominio Google Workspace mediante una cuenta de servicio con delegación de dominio",
+  "description_en": "Read, create and edit documents accessible to users in a Google Workspace domain using a service account with domain-wide delegation",
+  "icon": "icon.svg",
+  "category": "productivity",
+  "category_en": "productivity",
+  "keywords": ["docs", "google docs", "documento", "documentos", "workspace", "google", "domain-wide delegation", "delegación de dominio", "cuenta de servicio", "service account"],
+  "library": {
+    "package": "ruvic-docs-workspace-connector",
+    "install": "pip install git+https://github.com/Dgirto/Docs-Workspace.git#subdirectory=lib",
+    "import_name": "ruvic_docs_workspace_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "service_account",
+      "label": "Cuenta de servicio (delegación de dominio)",
+      "fields": [
+        {
+          "key": "service_account_json",
+          "label": "JSON de la cuenta de servicio",
+          "type": "textarea",
+          "required": true,
+          "secret": true,
+          "help_text": "Contenido completo del archivo de credenciales JSON descargado desde Google Cloud Console (IAM y administración → Cuentas de servicio → Claves). Requiere delegación de dominio autorizada por el superadministrador de Workspace."
+        },
+        {
+          "key": "default_user",
+          "label": "Usuario de prueba",
+          "type": "text",
+          "required": true,
+          "placeholder": "facturacion@tuempresa.com",
+          "help_text": "Usuario del dominio usado solo para el botón 'Probar conexión'. El código generado puede impersonar cualquier otro usuario autorizado del mismo dominio pasándolo como parámetro."
+        },
+        {
+          "key": "request_timeout",
+          "label": "Timeout de solicitud (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "30"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_DOCS_WORKSPACE_",
+  "operations": ["docs.read", "docs.create", "docs.append", "docs.replace"],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "Requiere que un superadministrador de Google Workspace autorice el Client ID de esta cuenta de servicio en Admin Console → Seguridad → Control de acceso a las API → Delegación en todo el dominio, con el scope https://www.googleapis.com/auth/documents. Con esa autorización, la cuenta de servicio puede impersonar a cualquier usuario del dominio y leer/crear/editar los documentos a los que ese usuario tenga acceso, sin autorización individual ni tokens que expiren. Solo funciona con Google Workspace, no con cuentas personales. Si ya configuraste el conector Gmail, Drive o Sheets (Google Workspace — cuenta de servicio), puedes reutilizar la misma cuenta de servicio agregando este scope a la misma entrada de delegación en el Admin Console."
+  }
+}
