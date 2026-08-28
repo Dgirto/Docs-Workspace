@@ -267,6 +267,12 @@ class DocsWorkspaceClient:
         service = self._get_service()
         try:
             doc = service.documents().get(documentId=document_id).execute(num_retries=1)
+        except (RefreshError, GoogleAuthError) as exc:
+            raise DocsWorkspaceAuthError(
+                f"No se pudo autenticar: el token OAuth/credenciales pueden "
+                f"estar revocados, vencidos o ser inválidos. Vuelve a "
+                f"autorizar el conector. Detalle: {exc}"
+            ) from exc
         except HttpError as exc:
             raise _wrap_http_error(exc) from exc
         body_text = _extract_text(doc.get("body", {}).get("content", []))
@@ -302,6 +308,12 @@ class DocsWorkspaceClient:
         service = self._get_service()
         try:
             doc = service.documents().create(body={"title": title}).execute(num_retries=1)
+        except (RefreshError, GoogleAuthError) as exc:
+            raise DocsWorkspaceAuthError(
+                f"No se pudo autenticar: el token OAuth/credenciales pueden "
+                f"estar revocados, vencidos o ser inválidos. Vuelve a "
+                f"autorizar el conector. Detalle: {exc}"
+            ) from exc
         except HttpError as exc:
             raise _wrap_http_error(exc) from exc
         document_id = doc["documentId"]
@@ -361,6 +373,12 @@ class DocsWorkspaceClient:
                     ]
                 },
             ).execute(num_retries=1)
+        except (RefreshError, GoogleAuthError) as exc:
+            raise DocsWorkspaceAuthError(
+                f"No se pudo autenticar: el token OAuth/credenciales pueden "
+                f"estar revocados, vencidos o ser inválidos. Vuelve a "
+                f"autorizar el conector. Detalle: {exc}"
+            ) from exc
         except HttpError as exc:
             raise _wrap_http_error(exc) from exc
         self._logger.info(
@@ -413,6 +431,12 @@ class DocsWorkspaceClient:
                     ]
                 },
             ).execute(num_retries=1)
+        except (RefreshError, GoogleAuthError) as exc:
+            raise DocsWorkspaceAuthError(
+                f"No se pudo autenticar: el token OAuth/credenciales pueden "
+                f"estar revocados, vencidos o ser inválidos. Vuelve a "
+                f"autorizar el conector. Detalle: {exc}"
+            ) from exc
         except HttpError as exc:
             raise _wrap_http_error(exc) from exc
         replies = result.get("replies", [{}])
