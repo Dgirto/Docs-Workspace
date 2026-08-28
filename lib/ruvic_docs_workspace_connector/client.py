@@ -99,10 +99,29 @@ def _wrap_http_error(exc: HttpError) -> DocsWorkspaceConnectorError:
 
 
 def _validate_document_id(document_id: str) -> str:
+    if not isinstance(document_id, str):
+        raise DocsWorkspaceDataError(
+            f"document_id debe ser un string, no {type(document_id).__name__}."
+        )
     document_id = document_id.strip()
     if not document_id:
         raise DocsWorkspaceDataError("document_id no puede estar vacío.")
     return document_id
+
+
+def _validate_text(value: Any, name: str) -> str:
+    if not isinstance(value, str):
+        raise DocsWorkspaceDataError(f"{name} debe ser un string, no {type(value).__name__}.")
+    if not value:
+        raise DocsWorkspaceDataError(f"{name} no puede estar vacío.")
+    return value
+
+
+def _validate_str_type(value: Any, name: str) -> str:
+    """Como _validate_text pero permite string vacío (ej. 'replace' al borrar texto)."""
+    if not isinstance(value, str):
+        raise DocsWorkspaceDataError(f"{name} debe ser un string, no {type(value).__name__}.")
+    return value
 
 
 def _extract_text(content: list[dict[str, Any]]) -> str:
@@ -279,9 +298,7 @@ class DocsWorkspaceClient:
             >>> client.create_document("Acta de reunión", "Asistentes: ...")
             {'id': '1AbC...xyz', 'title': 'Acta de reunión', 'url': 'https://docs.google.com/document/d/1AbC...xyz/edit'}
         """
-        title = title.strip()
-        if not title:
-            raise DocsWorkspaceDataError("title no puede estar vacío.")
+        title = _validate_text(title, "title")
         service = self._get_service()
         try:
             doc = service.documents().create(body={"title": title}).execute(num_retries=1)
@@ -333,8 +350,7 @@ class DocsWorkspaceClient:
             {'id': '1AbC...xyz', 'appended_chars': 25}
         """
         document_id = _validate_document_id(document_id)
-        if not text:
-            raise DocsWorkspaceDataError("text no puede estar vacío.")
+        text = _validate_text(text, "text")
         service = self._get_service()
         try:
             service.documents().batchUpdate(
@@ -380,8 +396,8 @@ class DocsWorkspaceClient:
             {'id': '1AbC...xyz', 'occurrences_changed': 3}
         """
         document_id = _validate_document_id(document_id)
-        if not find:
-            raise DocsWorkspaceDataError("find no puede estar vacío.")
+        find = _validate_text(find, "find")
+        replace = _validate_str_type(replace, "replace")
         service = self._get_service()
         try:
             result = service.documents().batchUpdate(
