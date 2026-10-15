@@ -62,6 +62,14 @@
             <td><code>docs.replace</code></td>
             <td data-i18n="op.replace">Busca y reemplaza texto en todo el documento (ideal para plantillas)</td>
           </tr>
+          <tr>
+            <td><code>docs.create_from_template</code></td>
+            <td data-i18n="op.template">Crea un documento copiando una plantilla y reemplazando sus variables en la copia (la plantilla no se modifica)</td>
+          </tr>
+          <tr>
+            <td><code>docs.export_pdf</code></td>
+            <td data-i18n="op.pdf">Exporta un documento a PDF (máx. 10 MB)</td>
+          </tr>
         </tbody>
       </table>
 
@@ -125,11 +133,11 @@
 
         <li>
           <strong data-i18n="step6.title">El superadministrador autoriza la delegación de dominio (paso crítico).</strong>
-          <p data-i18n="step6.body">Este paso <strong>solo lo puede hacer el superadministrador</strong> de tu organización de Google Workspace. Ve a <a href="https://admin.google.com/ac/owl/domainwidedelegation" target="_blank" rel="noopener">admin.google.com → Seguridad → Control de acceso a las API → Delegación en todo el dominio</a>. Si el Client ID ya está agregado (ej. por Gmail, Sheets o Drive Workspace), edítalo y agrega el scope de Docs; si no, pulsa <em>Agregar nuevo</em> e ingresa:</p>
+          <p data-i18n="step6.body">Este paso <strong>solo lo puede hacer el superadministrador</strong> de tu organización de Google Workspace. Ve a <a href="https://admin.google.com/ac/owl/domainwidedelegation" target="_blank" rel="noopener">admin.google.com → Seguridad → Control de acceso a las API → Delegación en todo el dominio</a>. Si el Client ID ya está agregado (ej. por Gmail, Sheets o Drive Workspace), edítalo y agrega los scopes de Docs y Drive; si no, pulsa <em>Agregar nuevo</em> e ingresa:</p>
           <ul>
             <li data-i18n="step6.li1"><strong>ID de cliente:</strong> el ID de cliente único copiado en el paso anterior.</li>
             <li><span data-i18n="step6.li2"><strong>Alcances OAuth</strong>:</span>
-<pre><code>https://www.googleapis.com/auth/documents</code></pre>
+<pre><code>https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive</code></pre>
             </li>
           </ul>
           <p data-i18n="step6.after">Guarda. Sin este paso, cualquier intento de conexión falla con el error <code>unauthorized_client</code>.</p>
@@ -149,7 +157,7 @@
     <section>
       <h2 id="permisos" data-i18n="section.permisos">Permisos requeridos</h2>
 
-      <p data-i18n="permisos.intro">Principio de mínimo privilegio: la cuenta de servicio solo necesita este scope de Docs. No autorices scopes de Drive completo ni de otras APIs de Workspace.</p>
+      <p data-i18n="permisos.intro">La cuenta de servicio necesita dos scopes: <code>documents</code> para editar documentos y <code>drive</code> para copiar plantillas y exportar a PDF. No autorices scopes de otras APIs de Workspace.</p>
 
       <table>
         <thead>
@@ -163,12 +171,16 @@
             <td><code>documents</code></td>
             <td data-i18n="scope.documents">Leer (<code>docs.read</code>), crear (<code>docs.create</code>) y editar (<code>docs.append</code>, <code>docs.replace</code>) documentos accesibles por el usuario impersonado</td>
           </tr>
+          <tr>
+            <td><code>drive</code></td>
+            <td data-i18n="scope.drive">Copiar plantillas (<code>docs.create_from_template</code>) y exportar a PDF (<code>docs.export_pdf</code>)</td>
+          </tr>
         </tbody>
       </table>
 
       <div class="callout callout-warning">
         <span class="callout-title" data-i18n="callout.dominio.title">La delegación aplica a TODO el dominio</span>
-        <span data-i18n="callout.dominio.body">A diferencia de OAuth2 por usuario, este scope no se limita a un usuario — la cuenta de servicio puede impersonar a <strong>cualquier</strong> usuario del dominio con ese permiso, incluidos los que se creen en el futuro. No hay forma de restringirlo a una lista específica de usuarios desde el Admin Console. El conector <strong>no</strong> solicita el scope completo de Drive: no puede mover, eliminar ni cambiar permisos de archivos.</span>
+        <span data-i18n="callout.dominio.body">A diferencia de OAuth2 por usuario, este scope no se limita a un usuario — la cuenta de servicio puede impersonar a <strong>cualquier</strong> usuario del dominio con ese permiso, incluidos los que se creen en el futuro. No hay forma de restringirlo a una lista específica de usuarios desde el Admin Console. El scope <code>drive</code> da acceso a todo el Drive del usuario impersonado; el conector solo lo usa para copiar plantillas y exportar a PDF, y no mueve, elimina ni cambia permisos de archivos.</span>
       </div>
     </section>
 
@@ -240,7 +252,7 @@
         <tbody>
           <tr>
             <td data-i18n="prob1.s">"unauthorized_client" al probar la conexión</td>
-            <td data-i18n="prob1.f">El error más común. El conector te dirá exactamente qué revisar: 1) que el Client ID esté agregado en el Admin Console (paso 6 de la sección anterior), 2) que los scopes incluyan exactamente <code>https://www.googleapis.com/auth/documents</code>, 3) que el usuario de prueba pertenezca al mismo dominio Workspace. Solo el superadministrador puede corregir el punto 1.</td>
+            <td data-i18n="prob1.f">El error más común. El conector te dirá exactamente qué revisar: 1) que el Client ID esté agregado en el Admin Console (paso 6 de la sección anterior), 2) que los scopes incluyan exactamente <code>https://www.googleapis.com/auth/documents</code> y <code>https://www.googleapis.com/auth/drive</code>, 3) que el usuario de prueba pertenezca al mismo dominio Workspace. Solo el superadministrador puede corregir el punto 1.</td>
           </tr>
           <tr>
             <td data-i18n="prob2.s">"La Google Docs API no está habilitada en el proyecto de Google Cloud…"</td>
@@ -277,7 +289,7 @@
       <p data-i18n="faq2.a">No. El conector solo lee, crea y edita el contenido de documentos (<code>docs.read</code>, <code>docs.create</code>, <code>docs.append</code>, <code>docs.replace</code>). No elimina archivos, no cambia permisos de acceso ni toca otros archivos de Drive.</p>
 
       <h3 data-i18n="faq3.q">¿Puedo usar la misma cuenta de servicio que Gmail, Sheets o Drive Workspace?</h3>
-      <p data-i18n="faq3.a">Sí. Una cuenta de servicio puede tener varios scopes autorizados a la vez en la misma entrada de delegación del Admin Console. Solo agrega <code>https://www.googleapis.com/auth/documents</code> a la lista de scopes existente, separado por coma, sin espacios extra.</p>
+      <p data-i18n="faq3.a">Sí. Una cuenta de servicio puede tener varios scopes autorizados a la vez en la misma entrada de delegación del Admin Console. Solo agrega <code>https://www.googleapis.com/auth/documents</code> y <code>https://www.googleapis.com/auth/drive</code> a la lista de scopes existente, separado por coma, sin espacios extra.</p>
 
       <h3 data-i18n="faq4.q">Rotación de credenciales</h3>
       <p data-i18n="faq4.a">Recomendado cada 90 días o según tu política: genera una nueva clave JSON en Google Cloud Console, actualízala en el formulario del conector, prueba la conexión, y luego elimina la clave anterior. La delegación de dominio no cambia — sigue asociada al mismo Client ID.</p>
@@ -322,6 +334,8 @@
     "op.create": "Crea un documento nuevo (con texto inicial opcional)",
     "op.append": "Agrega texto al final de un documento",
     "op.replace": "Busca y reemplaza texto en todo el documento (ideal para plantillas)",
+    "op.template": "Crea un documento copiando una plantilla y reemplazando sus variables en la copia (la plantilla no se modifica)",
+    "op.pdf": "Exporta un documento a PDF (máx. 10 MB)",
     "callout.solo_ws.title": "Solo para Google Workspace",
     "callout.solo_ws.body": "Este conector usa <strong>delegación de dominio</strong>, una función exclusiva de Google Workspace. No funciona con cuentas de Google personales (@gmail.com) — para esas usa el conector \"Google Docs\" (OAuth2).",
     "section.prerrequisitos": "Prerrequisitos",
@@ -345,7 +359,7 @@
     "step5.title": "Anota el ID de cliente único de la cuenta de servicio.",
     "step5.body": "En la pestaña <em>Detalles</em> de la cuenta de servicio, copia el <strong>ID de cliente único</strong> (una cadena numérica larga). Lo necesitarás en el siguiente paso.",
     "step6.title": "El superadministrador autoriza la delegación de dominio (paso crítico).",
-    "step6.body": "Este paso <strong>solo lo puede hacer el superadministrador</strong> de tu organización de Google Workspace. Ve a <a href=\"https://admin.google.com/ac/owl/domainwidedelegation\" target=\"_blank\" rel=\"noopener\">admin.google.com → Seguridad → Control de acceso a las API → Delegación en todo el dominio</a>. Si el Client ID ya está agregado (ej. por Gmail, Sheets o Drive Workspace), edítalo y agrega el scope de Docs; si no, pulsa <em>Agregar nuevo</em> e ingresa:",
+    "step6.body": "Este paso <strong>solo lo puede hacer el superadministrador</strong> de tu organización de Google Workspace. Ve a <a href=\"https://admin.google.com/ac/owl/domainwidedelegation\" target=\"_blank\" rel=\"noopener\">admin.google.com → Seguridad → Control de acceso a las API → Delegación en todo el dominio</a>. Si el Client ID ya está agregado (ej. por Gmail, Sheets o Drive Workspace), edítalo y agrega los scopes de Docs y Drive; si no, pulsa <em>Agregar nuevo</em> e ingresa:",
     "step6.li1": "<strong>ID de cliente:</strong> el ID de cliente único copiado en el paso anterior.",
     "step6.li2": "<strong>Alcances OAuth</strong>:",
     "step6.after": "Guarda. Sin este paso, cualquier intento de conexión falla con el error <code>unauthorized_client</code>.",
@@ -353,12 +367,13 @@
     "step7.title": "Define qué usuario usarás para la prueba inicial.",
     "step7.body": "Anota el correo de un usuario del dominio (ej. <code>facturacion@tuempresa.com</code>) para el formulario de Ruvic. Después de configurado, el agente podrá usar <strong>cualquier otro usuario autorizado</strong> del mismo dominio, no solo este.",
     "section.permisos": "Permisos requeridos",
-    "permisos.intro": "Principio de mínimo privilegio: la cuenta de servicio solo necesita este scope de Docs. No autorices scopes de Drive completo ni de otras APIs de Workspace.",
+    "permisos.intro": "La cuenta de servicio necesita dos scopes: <code>documents</code> para editar documentos y <code>drive</code> para copiar plantillas y exportar a PDF. No autorices scopes de otras APIs de Workspace.",
     "table.scope": "Scope",
     "table.scope_uso": "Para qué lo usa el conector",
     "scope.documents": "Leer (<code>docs.read</code>), crear (<code>docs.create</code>) y editar (<code>docs.append</code>, <code>docs.replace</code>) documentos accesibles por el usuario impersonado",
+    "scope.drive": "Copiar plantillas (<code>docs.create_from_template</code>) y exportar a PDF (<code>docs.export_pdf</code>)",
     "callout.dominio.title": "La delegación aplica a TODO el dominio",
-    "callout.dominio.body": "A diferencia de OAuth2 por usuario, este scope no se limita a un usuario — la cuenta de servicio puede impersonar a <strong>cualquier</strong> usuario del dominio con ese permiso, incluidos los que se creen en el futuro. No hay forma de restringirlo a una lista específica de usuarios desde el Admin Console. El conector <strong>no</strong> solicita el scope completo de Drive: no puede mover, eliminar ni cambiar permisos de archivos.",
+    "callout.dominio.body": "A diferencia de OAuth2 por usuario, este scope no se limita a un usuario — la cuenta de servicio puede impersonar a <strong>cualquier</strong> usuario del dominio con ese permiso, incluidos los que se creen en el futuro. No hay forma de restringirlo a una lista específica de usuarios desde el Admin Console. El scope <code>drive</code> da acceso a todo el Drive del usuario impersonado; el conector solo lo usa para copiar plantillas y exportar a PDF, y no mueve, elimina ni cambia permisos de archivos.",
     "section.configuracion_ruvic": "Configuración en Ruvic",
     "ruvic.intro": "Entra a <strong>Settings → Conectores</strong>, busca la tarjeta <strong>Google Docs (Google Workspace — cuenta de servicio)</strong> y pulsa <strong>Configurar</strong>. Diligencia el formulario con los valores que obtuviste en la sección anterior:",
     "table.campo": "Campo del formulario",
@@ -382,7 +397,7 @@
     "table.sintoma": "Mensaje / síntoma",
     "table.causa": "Causa probable y solución",
     "prob1.s": "\"unauthorized_client\" al probar la conexión",
-    "prob1.f": "El error más común. El conector te dirá exactamente qué revisar: 1) que el Client ID esté agregado en el Admin Console (paso 6 de la sección anterior), 2) que los scopes incluyan exactamente <code>https://www.googleapis.com/auth/documents</code>, 3) que el usuario de prueba pertenezca al mismo dominio Workspace. Solo el superadministrador puede corregir el punto 1.",
+    "prob1.f": "El error más común. El conector te dirá exactamente qué revisar: 1) que el Client ID esté agregado en el Admin Console (paso 6 de la sección anterior), 2) que los scopes incluyan exactamente <code>https://www.googleapis.com/auth/documents</code> y <code>https://www.googleapis.com/auth/drive</code>, 3) que el usuario de prueba pertenezca al mismo dominio Workspace. Solo el superadministrador puede corregir el punto 1.",
     "prob2.s": "\"La Google Docs API no está habilitada en el proyecto de Google Cloud…\"",
     "prob2.f": "Falta habilitar la Google Docs API en el proyecto (paso 2 de la sección anterior). El mensaje del conector incluye el enlace directo de activación; habilítala y espera 1-2 minutos.",
     "prob3.s": "\"…no contiene un JSON válido\"",
@@ -399,7 +414,7 @@
     "faq2.q": "¿El agente puede eliminar documentos o cambiar permisos?",
     "faq2.a": "No. El conector solo lee, crea y edita el contenido de documentos (<code>docs.read</code>, <code>docs.create</code>, <code>docs.append</code>, <code>docs.replace</code>). No elimina archivos, no cambia permisos de acceso ni toca otros archivos de Drive.",
     "faq3.q": "¿Puedo usar la misma cuenta de servicio que Gmail, Sheets o Drive Workspace?",
-    "faq3.a": "Sí. Una cuenta de servicio puede tener varios scopes autorizados a la vez en la misma entrada de delegación del Admin Console. Solo agrega <code>https://www.googleapis.com/auth/documents</code> a la lista de scopes existente, separado por coma, sin espacios extra.",
+    "faq3.a": "Sí. Una cuenta de servicio puede tener varios scopes autorizados a la vez en la misma entrada de delegación del Admin Console. Solo agrega <code>https://www.googleapis.com/auth/documents</code> y <code>https://www.googleapis.com/auth/drive</code> a la lista de scopes existente, separado por coma, sin espacios extra.",
     "faq4.q": "Rotación de credenciales",
     "faq4.a": "Recomendado cada 90 días o según tu política: genera una nueva clave JSON en Google Cloud Console, actualízala en el formulario del conector, prueba la conexión, y luego elimina la clave anterior. La delegación de dominio no cambia — sigue asociada al mismo Client ID.",
     "faq5.q": "¿Qué hago si el JSON se compromete?",
@@ -431,6 +446,8 @@
     "op.create": "Creates a new document (with optional initial text)",
     "op.append": "Appends text to the end of a document",
     "op.replace": "Searches and replaces text throughout the document (ideal for templates)",
+    "op.template": "Creates a document by copying a template and replacing its variables in the copy (the template is never modified)",
+    "op.pdf": "Exports a document to PDF (max 10 MB)",
     "callout.solo_ws.title": "Google Workspace only",
     "callout.solo_ws.body": "This connector uses <strong>domain-wide delegation</strong>, a Google Workspace-only feature. It does not work with personal Google accounts (@gmail.com) — for those, use the \"Google Docs\" (OAuth2) connector.",
     "section.prerrequisitos": "Prerequisites",
@@ -454,7 +471,7 @@
     "step5.title": "Note the service account's unique client ID.",
     "step5.body": "In the service account's <em>Details</em> tab, copy the <strong>Unique Client ID</strong> (a long numeric string). You'll need it in the next step.",
     "step6.title": "The super admin authorizes domain-wide delegation (critical step).",
-    "step6.body": "This step can <strong>only be done by your Google Workspace organization's super admin</strong>. Go to <a href=\"https://admin.google.com/ac/owl/domainwidedelegation\" target=\"_blank\" rel=\"noopener\">admin.google.com → Security → API controls → Domain-wide delegation</a>. If the Client ID is already added (e.g. by Gmail, Sheets or Drive Workspace), edit it and add the Docs scope; otherwise click <em>Add new</em> and enter:",
+    "step6.body": "This step can <strong>only be done by your Google Workspace organization's super admin</strong>. Go to <a href=\"https://admin.google.com/ac/owl/domainwidedelegation\" target=\"_blank\" rel=\"noopener\">admin.google.com → Security → API controls → Domain-wide delegation</a>. If the Client ID is already added (e.g. by Gmail, Sheets or Drive Workspace), edit it and add the Docs and Drive scopes; otherwise click <em>Add new</em> and enter:",
     "step6.li1": "<strong>Client ID:</strong> the unique client ID copied in the previous step.",
     "step6.li2": "<strong>OAuth scopes</strong>:",
     "step6.after": "Save. Without this step, any connection attempt fails with the <code>unauthorized_client</code> error.",
@@ -462,12 +479,13 @@
     "step7.title": "Decide which user you'll use for the initial test.",
     "step7.body": "Note the email of a domain user (e.g. <code>billing@yourcompany.com</code>) for the Ruvic form. Once configured, the agent can use <strong>any other authorized user</strong> in the same domain, not just this one.",
     "section.permisos": "Required permissions",
-    "permisos.intro": "Least-privilege principle: the service account only needs this Docs scope. Do not authorize full Drive scopes or other Workspace API scopes.",
+    "permisos.intro": "The service account needs two scopes: <code>documents</code> to edit documents and <code>drive</code> to copy templates and export to PDF. Do not authorize other Workspace API scopes.",
     "table.scope": "Scope",
     "table.scope_uso": "Why the connector needs it",
     "scope.documents": "Read (<code>docs.read</code>), create (<code>docs.create</code>) and edit (<code>docs.append</code>, <code>docs.replace</code>) documents accessible to the impersonated user",
+    "scope.drive": "Copy templates (<code>docs.create_from_template</code>) and export to PDF (<code>docs.export_pdf</code>)",
     "callout.dominio.title": "Delegation applies to the ENTIRE domain",
-    "callout.dominio.body": "Unlike per-user OAuth2, this scope isn't limited to one user — the service account can impersonate <strong>any</strong> user in the domain with that permission, including ones created in the future. There's no way to restrict it to a specific list of users from the Admin Console. The connector does <strong>not</strong> request the full Drive scope: it cannot move, delete, or change permissions on files.",
+    "callout.dominio.body": "Unlike per-user OAuth2, this scope isn't limited to one user — the service account can impersonate <strong>any</strong> user in the domain with that permission, including ones created in the future. There's no way to restrict it to a specific list of users from the Admin Console. The <code>drive</code> scope grants access to the impersonated user's whole Drive; the connector only uses it to copy templates and export to PDF, and does not move, delete, or change permissions on files.",
     "section.configuracion_ruvic": "Configuration in Ruvic",
     "ruvic.intro": "Go to <strong>Settings → Connectors</strong>, find the <strong>Google Docs (Google Workspace — service account)</strong> card and click <strong>Configure</strong>. Fill in the form with the values from the previous section:",
     "table.campo": "Form field",
@@ -491,7 +509,7 @@
     "table.sintoma": "Message / symptom",
     "table.causa": "Likely cause and fix",
     "prob1.s": "\"unauthorized_client\" when testing the connection",
-    "prob1.f": "The most common error. The connector will tell you exactly what to check: 1) that the Client ID is added in the Admin Console (step 6 of the previous section), 2) that the scopes include exactly <code>https://www.googleapis.com/auth/documents</code>, 3) that the test user belongs to the same Workspace domain. Only the super admin can fix item 1.",
+    "prob1.f": "The most common error. The connector will tell you exactly what to check: 1) that the Client ID is added in the Admin Console (step 6 of the previous section), 2) that the scopes include exactly <code>https://www.googleapis.com/auth/documents</code> and <code>https://www.googleapis.com/auth/drive</code>, 3) that the test user belongs to the same Workspace domain. Only the super admin can fix item 1.",
     "prob2.s": "\"The Google Docs API is not enabled in the Google Cloud project…\"",
     "prob2.f": "The Google Docs API isn't enabled in the project (step 2 of the previous section). The connector's message includes the direct activation link; enable it and wait 1-2 minutes.",
     "prob3.s": "\"…does not contain valid JSON\"",
@@ -508,7 +526,7 @@
     "faq2.q": "Can the agent delete documents or change permissions?",
     "faq2.a": "No. The connector only reads, creates and edits document content (<code>docs.read</code>, <code>docs.create</code>, <code>docs.append</code>, <code>docs.replace</code>). It doesn't delete files, change access permissions, or touch other Drive files.",
     "faq3.q": "Can I use the same service account as Gmail, Sheets or Drive Workspace?",
-    "faq3.a": "Yes. A service account can have several scopes authorized at once in the same delegation entry of the Admin Console. Just add <code>https://www.googleapis.com/auth/documents</code> to the existing scope list, comma-separated, with no extra spaces.",
+    "faq3.a": "Yes. A service account can have several scopes authorized at once in the same delegation entry of the Admin Console. Just add <code>https://www.googleapis.com/auth/documents</code> and <code>https://www.googleapis.com/auth/drive</code> to the existing scope list, comma-separated, with no extra spaces.",
     "faq4.q": "Credential rotation",
     "faq4.a": "Recommended every 90 days or per your policy: generate a new JSON key in Google Cloud Console, update it in the connector form, test the connection, then delete the old key. Domain-wide delegation doesn't change — it stays tied to the same Client ID.",
     "faq5.q": "What if the JSON is compromised?",

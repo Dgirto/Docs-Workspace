@@ -6,8 +6,9 @@ description: >
   Google Workspace, vía cuenta de servicio con delegación de dominio
   (impersonación) - leer el título y texto completo de un documento
   (read_document), crear un documento nuevo (create_document), agregar
-  texto al final (append_text) y buscar/reemplazar texto en todo el
-  documento (replace_text). Úsala cuando el usuario pida leer, resumir,
+  texto al final (append_text), buscar/reemplazar texto en todo el
+  documento (replace_text), crear un documento desde una plantilla
+  (create_from_template) y exportar a PDF (export_pdf). Úsala cuando el usuario pida leer, resumir,
   crear, redactar o actualizar un documento de Google Docs en un
   contexto de Google Workspace, especialmente si menciona varios
   usuarios del mismo dominio sin volver a autorizar cada uno por
@@ -20,6 +21,8 @@ triggers:
 - docs
 - acta
 - plantilla
+- pdf
+- exportar a pdf
 - redactar documento
 - crear documento
 - workspace
@@ -110,6 +113,29 @@ result = client.replace_text("1AbC...xyz", "{{CLIENTE}}", "ACME S.A.")
 
 Reemplaza **todas** las ocurrencias (texto literal, no regex). Ideal para llenar plantillas con marcadores tipo `{{CAMPO}}`.
 
+## Capacidad 5 — Crear un documento desde una plantilla
+
+```python
+nuevo = client.create_from_template(
+    "1Tpl...plantilla",               # ID del documento plantilla
+    "Contrato — Empresa 1",
+    replacements={"{{CLIENTE}}": "Empresa 1", "{{FECHA}}": "15/10/2026"},
+    parent_folder_id="1xYzCarpeta",   # opcional
+)
+print(nuevo["url"])
+print(nuevo["replacements"])  # {'{{CLIENTE}}': 2, '{{FECHA}}': 1}; 0 = marcador no encontrado
+```
+
+Copia la plantilla y aplica los reemplazos **solo en la copia**: la plantilla original nunca se modifica.
+
+## Capacidad 6 — Exportar a PDF
+
+```python
+ruta = client.export_pdf("1AbC...xyz", "/tmp/contrato.pdf")
+```
+
+Google limita la exportación a 10 MB por documento.
+
 ## Manejo de errores
 
 ```python
@@ -135,6 +161,6 @@ except DocsWorkspaceDataError as e:
 2. Nunca imprimas `RUVIC_DOCS_WORKSPACE_SERVICE_ACCOUNT_JSON` en logs ni en la salida.
 3. El `user_email` del constructor puede ser **cualquier** usuario del dominio autorizado, no solo el de prueba (`DEFAULT_USER`).
 4. El conector solo puede acceder a documentos que estén **compartidos con el usuario impersonado** (o de su propiedad).
-5. Para llenar plantillas, usa `replace_text` con marcadores únicos (`{{CLIENTE}}`, `{{FECHA}}`) — una llamada por marcador.
+5. Para llenar una plantilla usa `create_from_template`, nunca `replace_text` directamente sobre la plantilla: eso la modificaría para siempre. Si `replacements` devuelve 0 para un marcador, avisa al usuario que no se encontró.
 6. `read_document` devuelve texto plano sin formato — no preserva estilos, imágenes ni comentarios.
-7. El conector no elimina documentos, no cambia permisos ni accede a otros archivos de Drive.
+7. El conector no elimina documentos ni cambia permisos. Usa el scope `drive` solo para copiar plantillas y exportar a PDF; no lo uses para otras operaciones de Drive.

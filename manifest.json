@@ -46,10 +46,10 @@
     }
   ],
   "env_prefix": "RUVIC_DOCS_WORKSPACE_",
-  "operations": ["docs.read", "docs.create", "docs.append", "docs.replace"],
+  "operations": ["docs.read", "docs.create", "docs.append", "docs.replace", "docs.create_from_template", "docs.export_pdf"],
   "test_connection": true,
   "docs": {
     "skill": "SKILL.md",
-    "permissions_note": "Requiere que un superadministrador de Google Workspace autorice el Client ID de esta cuenta de servicio en Admin Console → Seguridad → Control de acceso a las API → Delegación en todo el dominio, con el scope https://www.googleapis.com/auth/documents. Con esa autorización, la cuenta de servicio puede impersonar a cualquier usuario del dominio y leer/crear/editar los documentos a los que ese usuario tenga acceso, sin autorización individual ni tokens que expiren. Solo funciona con Google Workspace, no con cuentas personales. Si ya configuraste el conector Gmail, Drive o Sheets (Google Workspace — cuenta de servicio), puedes reutilizar la misma cuenta de servicio agregando este scope a la misma entrada de delegación en el Admin Console."
+    "permissions_note": "Requiere que un superadministrador de Google Workspace autorice el Client ID de esta cuenta de servicio en Admin Console → Seguridad → Control de acceso a las API → Delegación en todo el dominio, con los scopes https://www.googleapis.com/auth/documents y https://www.googleapis.com/auth/drive (drive es necesario para copiar plantillas y exportar a PDF). Con esa autorización, la cuenta de servicio puede impersonar a cualquier usuario del dominio y leer/crear/editar los documentos a los que ese usuario tenga acceso, sin autorización individual ni tokens que expiren. Solo funciona con Google Workspace, no con cuentas personales. Si ya configuraste el conector Gmail, Drive o Sheets (Google Workspace — cuenta de servicio), puedes reutilizar la misma cuenta de servicio agregando este scope a la misma entrada de delegación en el Admin Console."
   }
 }

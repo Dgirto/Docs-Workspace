@@ -39,12 +39,15 @@ Python 3.10+. Dependencias: `google-auth` y `google-api-python-client`.
 ### 2. Delegación de dominio (solo el superadministrador de Workspace puede hacer esto)
 
 1. El superadministrador entra a [admin.google.com](https://admin.google.com/) → **Seguridad → Control de acceso a las API → Delegación en todo el dominio**.
-2. Si el Client ID ya está agregado (ej. porque ya configuraste Gmail, Sheets o Drive Workspace), edita esa misma entrada y agrega el scope de Docs a la lista. Si no, clic en **Agregar nuevo**.
+2. Si el Client ID ya está agregado (ej. porque ya configuraste Gmail, Sheets o Drive Workspace), edita esa misma entrada y agrega los scopes de Docs y Drive a la lista. Si no, clic en **Agregar nuevo**.
 3. **ID de cliente**: el ID de cliente único del paso anterior.
 4. **Alcances OAuth**:
    ```
-   https://www.googleapis.com/auth/documents
+   https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive
    ```
+   `drive` es necesario para `create_from_template` (copiar la plantilla) y
+   `export_pdf`. Si la delegación ya existía solo con `documents`, agrega
+   `drive` a la misma entrada.
 5. Guardar.
 
 > Sin este paso, cualquier intento de conexión falla con `unauthorized_client` — el conector detecta este error específico y explica exactamente qué revisar.
@@ -109,9 +112,10 @@ sean claros.
   imágenes, encabezados/pies de página ni comentarios.
 - `replace_text` busca texto **literal** (no expresiones regulares) y
   reemplaza todas las ocurrencias.
-- No elimina documentos, no cambia permisos, no mueve archivos entre
-  carpetas ni exporta a otros formatos (para eso usa el conector
-  `drive` en su lugar).
+- No elimina documentos, no cambia permisos ni mueve archivos entre
+  carpetas. Solo exporta a PDF (límite de Google: 10 MB por documento).
+- `create_from_template` copia la plantilla y reemplaza los marcadores
+  solo en la copia; la plantilla nunca se modifica.
 - La delegación aplica a **todo el dominio**: la cuenta de servicio
   puede impersonar a cualquier usuario autorizado, incluidos los que
   se creen en el futuro. No hay forma de restringirla a una lista
